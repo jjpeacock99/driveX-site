@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>driveX — Coming soon</title>
+<meta name="description" content="driveX reads the road ahead — routing you to smoother pavement, tracking the drives you love, and watching over your car before something goes wrong. From Driven Technologies. Launching soon.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --asphalt:    #0C0F13;
+    --asphalt-2:  #12161D;
+    --asphalt-3:  #1A1F28;
+    --line:       #262C36;
+    --lane:       #ECE7DB;
+    --mute:       #8A929D;
+    --mute-2:     #5C636E;
+    --amber:      #FFA63D;
+    --amber-deep: #E8862A;
+    --smooth:     #5FD8C6;
+    --smooth-dim: #3F9C8F;
+
+    --maxw: 1180px;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --body: 'Instrument Sans', system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--asphalt);
+    color:var(--lane);
+    font-family:var(--body);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--amber); color:var(--asphalt); }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(12,15,19,.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    height:64px;
+  }
+  .brand{ display:flex; align-items:baseline; gap:12px; }
+  .brand-mark{
+    font-family:var(--display);
+    font-weight:800; font-size:21px; letter-spacing:-.01em;
+    color:var(--lane);
+  }
+  .brand-mark b{ color:var(--amber); font-weight:800; }
+  .brand-sub{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute-2);
+  }
+  .status{
+    display:flex; align-items:center; gap:9px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--mute);
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--smooth);
+    box-shadow:0 0 0 0 rgba(95,216,198,.55);
+    animation:pulse 2.4s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(95,216,198,.5); }
+    70%{ box-shadow:0 0 0 7px rgba(95,216,198,0); }
+    100%{ box-shadow:0 0 0 0 rgba(95,216,198,0); }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{ position:relative; padding:84px 0 40px; }
+  .hero-glow{
+    position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(620px 320px at 18% 22%, rgba(255,166,61,.10), transparent 60%),
+      radial-gradient(680px 380px at 88% 70%, rgba(95,216,198,.08), transparent 62%);
+  }
+  .hero .wrap{ position:relative; z-index:1; }
+  .hero-eyebrow{ margin-bottom:22px; }
+  h1{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(2.7rem, 6.4vw, 5.1rem);
+    line-height:.98;
+    letter-spacing:-.025em;
+    max-width:14ch;
+  }
+  h1 .sweep{
+    background:linear-gradient(100deg, var(--amber) 0%, var(--amber) 38%, var(--smooth) 92%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .lede{
+    margin-top:26px;
+    font-size:clamp(1.02rem, 1.7vw, 1.22rem);
+    color:var(--mute);
+    max-width:54ch;
+  }
+  .lede strong{ color:var(--lane); font-weight:600; }
+
+  /* signal panel */
+  .signal{
+    margin-top:48px;
+    background:linear-gradient(180deg, var(--asphalt-2), var(--asphalt));
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+  }
+  .signal-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px; border-bottom:1px solid var(--line);
+    flex-wrap:wrap; gap:12px;
+  }
+  .signal-tag{
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute);
+    display:flex; align-items:center; gap:10px;
+  }
+  .readout{ display:flex; align-items:baseline; gap:10px; font-family:var(--mono); }
+  .readout-label{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--mute-2); }
+  .readout-num{ font-size:26px; font-weight:600; color:var(--smooth); font-variant-numeric:tabular-nums; }
+  .readout-unit{ font-size:11px; color:var(--mute-2); }
+  .signal-canvas-holder{ position:relative; height:200px; }
+  #signal{ display:block; width:100%; height:100%; }
+  .signal-foot{
+    display:flex; justify-content:space-between;
+    padding:11px 20px; border-top:1px solid var(--line);
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--mute-2);
+  }
+  .signal-foot .rough{ color:var(--amber); }
+  .signal-foot .smooth{ color:var(--smooth); }
+
+  /* email capture */
+  .capture{ margin-top:36px; max-width:520px; }
+  .capture-label{
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mute); margin-bottom:12px;
+  }
+  .capture-intro{
+    font-size:14.5px; color:var(--mute); margin-bottom:16px; max-width:48ch;
+  }
+  .capture-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .capture input[type="email"]{
+    flex:1 1 240px; min-width:0;
+    background:var(--asphalt-2); border:1px solid var(--line);
+    color:var(--lane); border-radius:10px;
+    padding:14px 16px; font-family:var(--body); font-size:15px;
+    transition:border-color .18s ease;
+  }
+  .capture input::placeholder{ color:var(--mute-2); }
+  .capture input[type="email"]:focus{ outline:none; border-color:var(--amber); }
+  .beta-opt{
+    display:flex; align-items:flex-start; gap:10px;
+    margin-top:14px; cursor:pointer;
+    font-size:14px; color:var(--lane);
+  }
+  .beta-opt input[type="checkbox"]{
+    flex:none; width:17px; height:17px; margin-top:2px;
+    accent-color:var(--amber); cursor:pointer;
+  }
+  .btn{
+    border:none; cursor:pointer; border-radius:10px;
+    padding:14px 24px; font-family:var(--body); font-weight:600; font-size:15px;
+    background:var(--amber); color:#1a1206;
+    transition:transform .12s ease, background .18s ease;
+  }
+  .btn:hover{ background:var(--amber-deep); }
+  .btn:active{ transform:translateY(1px); }
+  .capture-note{ margin-top:11px; font-size:12.5px; color:var(--mute-2); }
+  .capture-done{
+    display:none; align-items:center; gap:11px;
+    padding:15px 17px; border:1px solid var(--smooth-dim); border-radius:10px;
+    background:rgba(95,216,198,.07); color:var(--lane); font-size:15px;
+  }
+  .capture-done.show{ display:flex; }
+  .capture-done svg{ flex:none; }
+
+  /* ---------- Pillars ---------- */
+  .pillars{ padding:70px 0 30px; }
+  .section-head{ margin-bottom:40px; max-width:60ch; }
+  .section-head h2{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(1.7rem, 3.2vw, 2.5rem); line-height:1.05;
+    letter-spacing:-.02em; margin-top:14px;
+  }
+  .grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
+  .card{
+    background:linear-gradient(180deg, var(--asphalt-2), var(--asphalt));
+    border:1px solid var(--line); border-radius:16px;
+    padding:26px 26px 28px;
+    display:flex; flex-direction:column;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .card:hover{ border-color:var(--asphalt-3); transform:translateY(-2px); }
+  .card-index{
+    font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+    color:var(--mute-2); margin-bottom:18px;
+  }
+  .card-viz{ height:64px; margin-bottom:20px; }
+  .card-viz svg{ width:100%; height:100%; overflow:visible; }
+  .card h3{
+    font-family:var(--display); font-weight:700; font-size:1.32rem;
+    letter-spacing:-.01em; margin-bottom:9px;
+  }
+  .card p{ color:var(--mute); font-size:15px; }
+
+  /* ---------- Vision ---------- */
+  .vision{ padding:64px 0; }
+  .vision-inner{
+    border:1px solid var(--line); border-radius:18px;
+    background:
+      radial-gradient(520px 220px at 80% 0%, rgba(255,166,61,.08), transparent 60%),
+      linear-gradient(180deg, var(--asphalt-2), var(--asphalt));
+    padding:clamp(32px,5vw,56px);
+  }
+  .vision-inner h2{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(1.6rem,3vw,2.3rem); line-height:1.08;
+    letter-spacing:-.02em; max-width:18ch;
+  }
+  .vision-inner p{ margin-top:18px; color:var(--mute); font-size:clamp(1rem,1.5vw,1.12rem); max-width:60ch; }
+
+  /* ---------- Footer ---------- */
+  footer{ border-top:1px solid var(--line); padding:44px 0 56px; }
+  .foot-inner{ display:flex; justify-content:space-between; align-items:flex-end; gap:24px; flex-wrap:wrap; }
+  .foot-brand{ font-family:var(--display); font-weight:800; font-size:18px; }
+  .foot-brand b{ color:var(--amber); }
+  .foot-meta{ font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--mute-2); line-height:1.9; text-transform:uppercase; }
+  .foot-right{ text-align:right; }
+  .foot-contact{ color:var(--mute); font-size:14px; }
+  .foot-contact a{ color:var(--lane); border-bottom:1px solid var(--line); }
+  .foot-contact a:hover{ border-color:var(--amber); }
+
+  /* ---------- Focus / a11y ---------- */
+  a:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--smooth); outline-offset:3px;
+  }
+
+  @media (max-width:720px){
+    .grid{ grid-template-columns:1fr; }
+    .brand-sub{ display:none; }
+    .hero{ padding:60px 0 30px; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .dot{ animation:none; }
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <span class="brand-mark">drive<b>X</b></span>
+        <span class="brand-sub">Driven Technologies</span>
+      </div>
+      <div class="status"><span class="dot"></span> Launching 2027 · Coming soon</div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="wrap">
+      <div class="eyebrow hero-eyebrow">Driving intelligence</div>
+      <h1>Take the <span class="sweep">smoother</span> road.</h1>
+      <p class="lede">driveX turns your phone into a co-pilot that reads the road ahead — <strong>routing you toward smoother pavement</strong>, tracking the drives you love, and watching over your car before something goes wrong.</p>
+
+      <!-- Signature: live road-roughness signal -->
+      <div class="signal" aria-label="Illustration of road surface smoothness, rough on the left resolving to smooth on the right">
+        <div class="signal-head">
+          <div class="signal-tag"><span class="dot"></span> Live road signal</div>
+          <div class="readout">
+            <span class="readout-label">Smoothness</span>
+            <span class="readout-num" id="score">—</span>
+            <span class="readout-unit">/ 100</span>
+          </div>
+        </div>
+        <div class="signal-canvas-holder">
+          <canvas id="signal"></canvas>
+        </div>
+        <div class="signal-foot">
+          <span class="rough">◄ Rough pavement</span>
+          <span class="smooth">Smoother ahead ►</span>
+        </div>
+      </div>
+
+      <!-- Email + beta capture -->
+      <div class="capture">
+        <div class="capture-label">Be first on the road</div>
+        <p class="capture-intro">driveX is opening a limited beta before launch. Beta drivers get early access, a direct line to the team, and a real say in which features ship first — and every drive you take helps make the roads smarter for everyone. Add your email to claim a spot.</p>
+        <div class="capture-row" id="captureForm">
+          <input type="email" id="email" placeholder="you@email.com" aria-label="Email address" autocomplete="email">
+          <button class="btn" id="notifyBtn" type="button">Request beta access</button>
+        </div>
+        <label class="beta-opt" for="betaOpt">
+          <input type="checkbox" id="betaOpt" checked>
+          <span>Count me in for the beta — I’d like early access before launch.</span>
+        </label>
+        <p class="capture-note" id="captureNote">No spam — just beta news and one note when driveX goes live.</p>
+        <div class="capture-done" id="captureDone" role="status">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5FD8C6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <span id="captureDoneMsg">You’re on the list. We’ll send one note when driveX launches.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pillars -->
+  <section class="pillars">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">What’s coming</div>
+        <h2>Four reasons to wait for it.</h2>
+      </div>
+      <div class="grid">
+
+        <!-- 01 Smoother roads -->
+        <article class="card">
+          <div class="card-index">01 — Smoother roads</div>
+          <div class="card-viz" aria-hidden="true">
+            <svg viewBox="0 0 220 64" preserveAspectRatio="none">
+              <path d="M0,40 6,18 12,46 18,14 24,48 30,22 36,44 42,20 48,42 54,30 60,38 70,33 82,35 96,33 112,34 130,33 150,34 175,33 220,34"
+                    fill="none" stroke="url(#g1)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+              <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#FFA63D"/><stop offset="1" stop-color="#5FD8C6"/>
+              </linearGradient></defs>
+            </svg>
+          </div>
+          <h3>Smoother roads, found for you</h3>
+          <p>driveX senses how rough the road really is and steers you toward smoother pavement — easier on your car, your coffee, and your spine.</p>
+        </article>
+
+        <!-- 02 Drives -->
+        <article class="card">
+          <div class="card-index">02 — Your drives</div>
+          <div class="card-viz" aria-hidden="true">
+            <svg viewBox="0 0 220 64">
+              <path d="M8,52 C40,52 44,14 84,14 C128,14 120,50 158,50 C196,50 206,20 212,16"
+                    fill="none" stroke="#5FD8C6" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="1 7"/>
+              <circle cx="8" cy="52" r="4.5" fill="#FFA63D"/>
+              <circle cx="212" cy="16" r="4.5" fill="#5FD8C6"/>
+            </svg>
+          </div>
+          <h3>Create and track your drives</h3>
+          <p>Plan a route, save a favorite, and keep a record of every drive — from the daily commute to the one you take just because.</p>
+        </article>
+
+        <!-- 03 Maintenance -->
+        <article class="card">
+          <div class="card-index">03 — Maintenance</div>
+          <div class="card-viz" aria-hidden="true">
+            <svg viewBox="0 0 220 64">
+              <path d="M6,20 70,20 92,20 110,42 128,20 214,20" fill="none" stroke="#3F9C8F" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+              <path d="M6,46 C70,46 120,46 150,46 L150,46" fill="none" stroke="#5FD8C6" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M150,46 C176,46 188,40 214,30" fill="none" stroke="#FFA63D" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="2 6"/>
+              <circle cx="150" cy="46" r="4" fill="#FFA63D"/>
+            </svg>
+          </div>
+          <h3>Know before it breaks</h3>
+          <p>driveX learns how your car is holding up over time and flags what needs attention — so maintenance becomes a plan, not a surprise.</p>
+        </article>
+
+        <!-- 04 Track mode -->
+        <article class="card">
+          <div class="card-index">04 — Track mode</div>
+          <div class="card-viz" aria-hidden="true">
+            <svg viewBox="0 0 220 64">
+              <path d="M30,46 C8,46 8,18 30,18 L150,18 C180,18 180,46 150,46 L70,46 C44,46 44,30 70,30 L120,30"
+                    fill="none" stroke="#262C36" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M30,46 C8,46 8,18 30,18 L150,18 C180,18 180,46 150,46 L70,46 C44,46 44,30 70,30 L120,30"
+                    fill="none" stroke="#FFA63D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 7"/>
+              <circle cx="120" cy="30" r="4.5" fill="#5FD8C6"/>
+            </svg>
+          </div>
+          <h3>Built for the good stuff</h3>
+          <p>Switch into track mode on track days to capture your laps, sectors, and personal bests when the road finally opens up.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Vision -->
+  <section class="vision">
+    <div class="wrap">
+      <div class="vision-inner">
+        <div class="eyebrow" style="margin-bottom:16px;">More than a map</div>
+        <h2>Every drive makes the next one better.</h2>
+        <p>driveX isn’t just routing around the rough stuff today — it’s building a living, anonymized picture of the roads so smarter routing, sharper maintenance insight, and better drive recommendations reach every driver, mile after mile.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="wrap foot-inner">
+      <div>
+        <div class="foot-brand">drive<b>X</b></div>
+        <div class="foot-meta">Driven Technologies · Patent pending</div>
+      </div>
+      <div class="foot-right">
+        <div class="foot-contact">Partnerships &amp; press — <a href="mailto:hello@driventech.com">hello@driventech.com</a></div>
+        <div class="foot-meta" style="margin-top:8px;">© 2026 Driven Technologies. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+<script>
+(function(){
+  // ---- Email capture (client-side confirmation only) ----
+  var btn = document.getElementById('notifyBtn');
+  var email = document.getElementById('email');
+  var form = document.getElementById('captureForm');
+  var note = document.getElementById('captureNote');
+  var done = document.getElementById('captureDone');
+  var doneMsg = document.getElementById('captureDoneMsg');
+  var betaOpt = document.getElementById('betaOpt');
+  var intro = document.querySelector('.capture-intro');
+  function submit(){
+    var v = (email.value || '').trim();
+    var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    if(!ok){
+      email.focus();
+      email.style.borderColor = '#FFA63D';
+      note.textContent = 'Please enter a valid email address.';
+      note.style.color = '#FFA63D';
+      return;
+    }
+    doneMsg.textContent = betaOpt.checked
+      ? 'You’re on the beta list. We’ll be in touch with early access before launch.'
+      : 'You’re on the list. We’ll send one note when driveX launches.';
+    form.style.display = 'none';
+    note.style.display = 'none';
+    if(intro) intro.style.display = 'none';
+    betaOpt.style.display = 'none';
+    done.classList.add('show');
+  }
+  btn.addEventListener('click', submit);
+  email.addEventListener('keydown', function(e){ if(e.key === 'Enter') submit(); });
+
+  // ---- Live road-roughness signal (the signature) ----
+  var canvas = document.getElementById('signal');
+  var ctx = canvas.getContext('2d');
+  var scoreEl = document.getElementById('score');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W=0, H=0, dpr = Math.min(window.devicePixelRatio||1, 2);
+
+  function resize(){
+    var r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // smooth pseudo-noise from summed sines
+  function noise(x, t){
+    return Math.sin(x*0.9 + t) * 0.5
+         + Math.sin(x*2.3 + t*1.7) * 0.28
+         + Math.sin(x*4.7 + t*0.6) * 0.16
+         + Math.sin(x*9.1 + t*2.3) * 0.09;
+  }
+
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    var mid = H*0.5;
+    var steps = 120;
+
+    // faint center reference
+    ctx.strokeStyle = 'rgba(38,44,54,0.9)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,mid); ctx.lineTo(W,mid); ctx.stroke();
+
+    var grad = ctx.createLinearGradient(0,0,W,0);
+    grad.addColorStop(0,'#FFA63D');
+    grad.addColorStop(0.45,'#E8862A');
+    grad.addColorStop(1,'#5FD8C6');
+
+    // build the signal: high amplitude (rough) left -> low (smooth) right
+    var pts = [];
+    for(var i=0;i<=steps;i++){
+      var p = i/steps;            // 0..1 across width
+      var x = p*W;
+      var amp = (1-p);            // rough on the left
+      amp = amp*amp;              // ease toward calm
+      var maxA = H*0.40;
+      var y = mid + noise(p*7, t) * amp * maxA;
+      pts.push([x,y]);
+    }
+
+    // area fill
+    ctx.beginPath();
+    ctx.moveTo(0,mid);
+    for(var a=0;a<pts.length;a++) ctx.lineTo(pts[a][0],pts[a][1]);
+    ctx.lineTo(W,mid);
+    ctx.closePath();
+    var fillG = ctx.createLinearGradient(0,0,0,H);
+    fillG.addColorStop(0,'rgba(255,166,61,0.10)');
+    fillG.addColorStop(1,'rgba(95,216,198,0.02)');
+    ctx.fillStyle = fillG;
+    ctx.fill();
+
+    // signal line
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0],pts[0][1]);
+    for(var b=1;b<pts.length;b++) ctx.lineTo(pts[b][0],pts[b][1]);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 2.4;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // leading marker on the smooth end
+    var last = pts[pts.length-1];
+    ctx.beginPath();
+    ctx.arc(last[0]-3, last[1], 3.5, 0, Math.PI*2);
+    ctx.fillStyle = '#5FD8C6';
+    ctx.fill();
+
+    // smoothness score tied to current right-side calm
+    var roughNow = Math.abs(noise(3.2, t)) + Math.abs(noise(5.6, t*1.3));
+    var score = Math.round(88 + (1 - Math.min(roughNow,1)) * 11); // ~88..99
+    scoreEl.textContent = score;
+  }
+
+  if(reduce){
+    draw(0.6);                    // single static frame
+  } else {
+    var start = performance.now();
+    (function loop(now){
+      var t = (now - start)/1000;
+      draw(t*0.9);
+      requestAnimationFrame(loop);
+    })(start);
+  }
+})();
+</script>
+</body>
+</html>
