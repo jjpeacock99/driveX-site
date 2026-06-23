@@ -434,11 +434,16 @@
           <input type="checkbox" id="betaOpt" checked>
           <span>Count me in for the beta — I’d like early access before launch.</span>
         </label>
-        <p class="capture-note" id="captureNote">No spam — just beta news and one note when driveX goes live.</p>
+        <p class="capture-note" id="captureNote">No spam — we’ll email you to confirm, then keep you posted on the beta and launch.</p>
         <div class="capture-done" id="captureDone" role="status">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5FD8C6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          <span id="captureDoneMsg">You’re on the list. We’ll send one note when driveX launches.</span>
+          <span id="captureDoneMsg">Almost there — check your inbox and click confirm to lock in your spot.</span>
         </div>
+        <!-- Hidden Kit (ConvertKit) submission target -->
+        <form id="kitForm" action="https://app.kit.com/forms/9599101/subscriptions" method="post" target="kitSink" style="display:none" aria-hidden="true">
+          <input type="email" name="email_address" id="kitEmail">
+        </form>
+        <iframe name="kitSink" title="kit" style="display:none" aria-hidden="true"></iframe>
       </div>
     </div>
   </section>
@@ -464,7 +469,7 @@
 
 <script>
 (function(){
-  // ---- Email capture (client-side confirmation only) ----
+  // ---- Email capture → posts to Kit (ConvertKit) in the background ----
   var btn = document.getElementById('notifyBtn');
   var email = document.getElementById('email');
   var form = document.getElementById('captureForm');
@@ -473,6 +478,8 @@
   var doneMsg = document.getElementById('captureDoneMsg');
   var betaOpt = document.getElementById('betaOpt');
   var intro = document.querySelector('.capture-intro');
+  var kitForm = document.getElementById('kitForm');
+  var kitEmail = document.getElementById('kitEmail');
   function submit(){
     var v = (email.value || '').trim();
     var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -483,9 +490,11 @@
       note.style.color = '#F5A300';
       return;
     }
+    // send to Kit via hidden form -> hidden iframe (no CORS, no API key)
+    try { kitEmail.value = v; kitForm.submit(); } catch(e) {}
     doneMsg.textContent = betaOpt.checked
-      ? 'You’re on the beta list. We’ll be in touch with early access before launch.'
-      : 'You’re on the list. We’ll send one note when driveX launches.';
+      ? 'Almost there — check your inbox and click confirm to lock in your beta spot.'
+      : 'Almost there — check your inbox and click confirm to finish signing up.';
     form.style.display = 'none';
     note.style.display = 'none';
     if(intro) intro.style.display = 'none';
